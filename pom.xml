@@ -8,7 +8,7 @@
         <version>3.1.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.github.lemongrab32</groupId>
+    <groupId>com.github.malebranchee</groupId>
     <artifactId>RegistrationTest</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>RegistrationTest</name>
@@ -20,6 +20,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -37,6 +41,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -54,10 +59,16 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -73,6 +84,24 @@
                     </excludes>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.flywaydb</groupId>-->
+<!--                <artifactId>flyway-core</artifactId>-->
+<!--                -->
+<!--                <configuration>-->
+<!--                    <user>postgres</user>-->
+<!--                    <password>123</password>-->
+<!--                    <schemas>-->
+<!--                        <schema>mySchema</schema>-->
+<!--                    </schemas>-->
+<!--                    <url>jdbc:postgresql://localhost:5432/postgres</url>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--            <plugin>-->
+<!--                <groupId>org.postgresql</groupId>-->
+<!--                <artifactId>postgresql</artifactId>-->
+<!--                <version>42.6.0</version>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
