@@ -18,16 +18,20 @@ public class User {
     @Column(name = "login")
     private String login;
 
-    @Column(name = "mail")
-    private String mail;
-
     @Column(name = "password")
     private String password;
 
+    @Column(name = "mail")
+    private String mail;
 
+    public Long getChatId() {
+        return id;
+    }
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<Role> roles;
+
+
 }
 
 
