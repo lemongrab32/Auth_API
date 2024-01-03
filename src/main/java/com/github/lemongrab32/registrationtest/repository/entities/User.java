@@ -4,14 +4,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Objects.isNull;
 
 @Entity
 @Table(name= "users")
 @Data
+@SequenceGenerator(name = "user_seq", sequenceName = "user_id_seq", allocationSize = 1)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_seq")
     @Column(name = "id")
     private Long id;
 
@@ -23,11 +27,7 @@ public class User {
 
     @Column(name = "mail")
     private String mail;
-
-    public Long getChatId() {
-        return id;
-    }
-
+    
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<Role> roles;
 
