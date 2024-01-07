@@ -34,5 +34,8 @@ public class Role {
         }
         users.add(user);
     }
+    public void deleteUser(User user){
+        users.remove(user);
+    }
 
 }

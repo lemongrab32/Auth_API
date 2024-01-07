@@ -105,24 +105,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.flywaydb</groupId>-->
-<!--                <artifactId>flyway-core</artifactId>-->
-<!--                -->
-<!--                <configuration>-->
-<!--                    <user>postgres</user>-->
-<!--                    <password>123</password>-->
-<!--                    <schemas>-->
-<!--                        <schema>mySchema</schema>-->
-<!--                    </schemas>-->
-<!--                    <url>jdbc:postgresql://localhost:5432/postgres</url>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <groupId>org.postgresql</groupId>-->
-<!--                <artifactId>postgresql</artifactId>-->
-<!--                <version>42.6.0</version>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 
