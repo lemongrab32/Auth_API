@@ -1,5 +1,5 @@
 package com.github.lemongrab32.registrationtest.service;
-import com.github.lemongrab32.registrationtest.dtos.RoleData;
+import com.github.lemongrab32.registrationtest.dtos.RoleSettingDto;
 import com.github.lemongrab32.registrationtest.dtos.RegistrationUserDto;
 import com.github.lemongrab32.registrationtest.exceptions.AppError;
 import com.github.lemongrab32.registrationtest.repository.UserRepository;
@@ -60,11 +60,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public ResponseEntity<?> addRole(@RequestBody RoleData roleData){
+    public ResponseEntity<?> addRole(@RequestBody RoleSettingDto roleSettingDto){
         try {
-            User user = findByLogin(roleData.getLogin()).get();
-            if (!user.getRoles().contains(roleService.findByName(roleData.getRoleName()).get())){
-                roleService.addRole(roleData.getRoleName(), user);
+            User user = findByLogin(roleSettingDto.getLogin()).get();
+            if (!user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).get())){
+                roleService.addRole(roleSettingDto.getRoleName(), user);
                 userRepository.save(user);
             }
         } catch (BadCredentialsException e){
@@ -74,12 +74,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public ResponseEntity<?> deleteRole(@RequestBody RoleData roleData){
+    public ResponseEntity<?> deleteRole(@RequestBody RoleSettingDto roleSettingDto){
         try{
-            User user = findByLogin(roleData.getLogin()).get();
-            if (!user.getRoles().contains(roleService.findByName(roleData.getRoleName()).get())){
-                roleService.deleteRole(roleData.getRoleName(), user);
-                userRepository.save(user);
+            User user = findByLogin(roleSettingDto.getLogin()).get();
+            if (user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).get())){
+                roleService.deleteRole(roleSettingDto.getRoleName(), user);
             }
         } catch (BadCredentialsException e){
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "No such user!"), HttpStatus.BAD_REQUEST);

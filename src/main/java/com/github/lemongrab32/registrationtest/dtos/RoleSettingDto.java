@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class RoleData {
+public class RoleSettingDto {
 
     private String roleName;
     private String login;
