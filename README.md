@@ -1,2 +1,2 @@
-# RegistrationTest
-A small web application that is a registration service.
+# Auth API
+API that provides registration and logging in options.
