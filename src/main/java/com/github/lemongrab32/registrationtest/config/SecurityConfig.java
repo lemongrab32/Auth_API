@@ -55,8 +55,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/secured", "/info").authenticated()
-                        .requestMatchers("/admin/role/add", "/admin/role/delete").hasRole("ADMIN")
+                        .requestMatchers( "/info").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
