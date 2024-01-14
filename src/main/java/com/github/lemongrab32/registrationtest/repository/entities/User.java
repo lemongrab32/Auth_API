@@ -27,10 +27,27 @@ public class User {
 
     @Column(name = "mail")
     private String mail;
-    
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "roles_x_users",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
+    public void addRole(Role role) {
+        if (isNull(roles))
+            roles = new ArrayList<>();
+        roles.add(role);
+    }
+
+    public void deleteRole(Role role) {
+        roles.remove(role);
+    }
+
+    public void deleteAllRoles() {
+        roles.clear();
+    }
 
 }
 

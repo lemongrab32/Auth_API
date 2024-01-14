@@ -1,4 +1,5 @@
 package com.github.lemongrab32.registrationtest.controllers;
+import com.github.lemongrab32.registrationtest.dtos.DeletionUserDto;
 import com.github.lemongrab32.registrationtest.dtos.RoleSettingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,11 @@ public class AdminController {
     @PostMapping("/delete_role")
     public ResponseEntity<?> deleteRole(@RequestBody RoleSettingDto roleSettingDto){
         return userService.deleteRole(roleSettingDto);
+    }
+
+    @PostMapping("/delete_user")
+    public ResponseEntity<?> deleteUser(@RequestBody DeletionUserDto deletionUserDto) {
+        return userService.deleteUser(deletionUserDto);
     }
 
 }
