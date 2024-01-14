@@ -1,8 +1,10 @@
 package com.github.lemongrab32.registrationtest.service;
+import com.github.lemongrab32.registrationtest.dtos.DeletionUserDto;
 import com.github.lemongrab32.registrationtest.dtos.RoleSettingDto;
 import com.github.lemongrab32.registrationtest.dtos.RegistrationUserDto;
 import com.github.lemongrab32.registrationtest.exceptions.AppError;
 import com.github.lemongrab32.registrationtest.repository.UserRepository;
+import com.github.lemongrab32.registrationtest.repository.entities.Role;
 import com.github.lemongrab32.registrationtest.repository.entities.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
+    private final MailService mailService;
 
     public Optional<User> findByLogin(String login) {
         return userRepository.findByLogin(login);
@@ -49,14 +52,48 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    // Registration data saving
     public User save(RegistrationUserDto registrationUserDto) {
         User user = new User();
         user.setLogin(registrationUserDto.getUsername());
         user.setMail(registrationUserDto.getEmail());
         user.setPassword(registrationUserDto.getPassword());
-        roleService.addRole("ROLE_USER", user);
+        user.addRole(roleService.findByName("ROLE_UNCONFIRMED").get());
+        mailService.sendMail(user.getMail(),
+                "Confirmation of given email address",
+                "Follow this link to confirm your email address:\n" +
+                        "\thttp://localhost:8080/api/confirmed/" + user.getLogin());
         return userRepository.save(user);
+    }
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public ResponseEntity<?> deleteUser(@RequestBody DeletionUserDto deletionUserDto){
+        try {
+            User user = findByLogin(deletionUserDto.getUsername()).get();
+            user.deleteAllRoles();
+            userRepository.deleteUserByLogin(deletionUserDto.getUsername());
+
+        } catch (BadCredentialsException e){
+            return new ResponseEntity<>(new AppError(HttpStatus.NOT_FOUND.value(),
+                    "User " + deletionUserDto.getUsername() + " doesn't exists"), HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(HttpStatus.ACCEPTED);
+    }
+
+    public void addRole(String roleName, String username) {
+        Role role = roleService.findByName(roleName).get();
+        User user = findByLogin(username).get();
+        user.addRole(role);
+        userRepository.save(user);
+    }
+    public void deleteRole(String roleName, String username){
+        Role role = roleService.findByName(roleName).get();
+        User user = findByLogin(username).get();
+        user.deleteRole(role);
+        userRepository.save(user);
     }
 
     @Transactional
@@ -64,8 +101,7 @@ public class UserService implements UserDetailsService {
         try {
             User user = findByLogin(roleSettingDto.getLogin()).get();
             if (!user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).get())){
-                roleService.addRole(roleSettingDto.getRoleName(), user);
-                userRepository.save(user);
+                addRole(roleSettingDto.getRoleName(), user.getLogin());
             }
         } catch (BadCredentialsException e){
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Wrong data"), HttpStatus.BAD_REQUEST);
@@ -78,7 +114,7 @@ public class UserService implements UserDetailsService {
         try{
             User user = findByLogin(roleSettingDto.getLogin()).get();
             if (user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).get())){
-                roleService.deleteRole(roleSettingDto.getRoleName(), user);
+                deleteRole(roleSettingDto.getRoleName(), user.getLogin());
             }
         } catch (BadCredentialsException e){
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "No such user!"), HttpStatus.BAD_REQUEST);

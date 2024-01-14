@@ -1,9 +1,6 @@
 package com.github.lemongrab32.registrationtest.service;
 
-import com.github.lemongrab32.registrationtest.dtos.JwtRequest;
-import com.github.lemongrab32.registrationtest.dtos.JwtResponse;
-import com.github.lemongrab32.registrationtest.dtos.RegistrationUserDto;
-import com.github.lemongrab32.registrationtest.dtos.UserDto;
+import com.github.lemongrab32.registrationtest.dtos.*;
 import com.github.lemongrab32.registrationtest.exceptions.AppError;
 import com.github.lemongrab32.registrationtest.repository.entities.User;
 import com.github.lemongrab32.registrationtest.utils.JwtUtils;
@@ -52,4 +49,22 @@ public class AuthService {
         return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
     }
 
+    public ResponseEntity<?> recoveryPassword(@RequestBody PasswordRecoveryDto pass, String username) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!pass.getPassword().equals(pass.getConfirmPassword())) {
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Password mismatch"), HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.findByLogin(username).get();
+        if (encoder.matches(pass.getPassword(), user.getPassword())) {
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),
+                    "New password must be different from the old one"), HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(encoder.encode(pass.getPassword()));
+        userService.save(user);
+
+        return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
+    }
 }
