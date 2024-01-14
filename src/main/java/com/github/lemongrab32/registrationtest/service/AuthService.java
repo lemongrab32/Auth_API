@@ -1,14 +1,10 @@
 package com.github.lemongrab32.registrationtest.service;
-import com.github.lemongrab32.registrationtest.dtos.JwtRequest;
-import com.github.lemongrab32.registrationtest.dtos.JwtResponse;
-import com.github.lemongrab32.registrationtest.dtos.RegistrationUserDto;
-import com.github.lemongrab32.registrationtest.dtos.UserDto;
+
+import com.github.lemongrab32.registrationtest.dtos.*;
 import com.github.lemongrab32.registrationtest.exceptions.AppError;
 import com.github.lemongrab32.registrationtest.repository.entities.User;
 import com.github.lemongrab32.registrationtest.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,15 +15,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-import java.util.Date;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-
-    Logger logger = LoggerFactory.getLogger("UserAuthenticationLog");
     private final UserService userService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
@@ -42,12 +33,10 @@ public class AuthService {
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtils.generateToken(userDetails);
-        logger.info("User '{}' created a join token {}", authRequest.getUsername(), token);
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
     public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
-        java.time.LocalDateTime currentDateTime = java.time.LocalDateTime.now();
         if (!registrationUserDto.getPassword().equals(registrationUserDto.getConfirmPassword())) {
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Password mismatch"), HttpStatus.BAD_REQUEST);
         }
@@ -57,11 +46,25 @@ public class AuthService {
         registrationUserDto.setPassword(new BCryptPasswordEncoder()
                 .encode(registrationUserDto.getPassword()));
         User user = userService.save(registrationUserDto);
-        logger.info("User {} signed up on [{}/{}] [{}:{}:{}].", user.getLogin(), currentDateTime.getDayOfMonth(),
-                currentDateTime.getMonth(), currentDateTime.getYear(), currentDateTime.getHour(), currentDateTime.getMinute(),
-                currentDateTime.getSecond());
         return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
     }
 
+    public ResponseEntity<?> recoveryPassword(@RequestBody PasswordRecoveryDto pass, String username) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
+        if (!pass.getPassword().equals(pass.getConfirmPassword())) {
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Password mismatch"), HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.findByLogin(username).get();
+        if (encoder.matches(pass.getPassword(), user.getPassword())) {
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),
+                    "New password must be different from the old one"), HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(encoder.encode(pass.getPassword()));
+        userService.save(user);
+
+        return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
+    }
 }
