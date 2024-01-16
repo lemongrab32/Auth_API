@@ -5,6 +5,8 @@ import com.github.lemongrab32.registrationtest.exceptions.AppError;
 import com.github.lemongrab32.registrationtest.repository.entities.User;
 import com.github.lemongrab32.registrationtest.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserService userService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
@@ -32,6 +35,7 @@ public class AuthService {
                     "Wrong login or password"), HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
+        logger.info("User {} signed up.", userDetails.getUsername());
         String token = jwtUtils.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
@@ -46,6 +50,7 @@ public class AuthService {
         registrationUserDto.setPassword(new BCryptPasswordEncoder()
                 .encode(registrationUserDto.getPassword()));
         User user = userService.save(registrationUserDto);
+        logger.info("User {} created account.", user.getLogin());
         return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
     }
 
@@ -64,7 +69,7 @@ public class AuthService {
 
         user.setPassword(encoder.encode(pass.getPassword()));
         userService.save(user);
-
+        logger.info("User {} recovered his password.", user.getLogin());
         return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
     }
 }

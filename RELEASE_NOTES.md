@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.3.1-SNAPSHOT
+
+* Added logging and AOP dependencies
+
 ## 0.3.0-SNAPSHOT
 
 * Added user deletion option for admins
