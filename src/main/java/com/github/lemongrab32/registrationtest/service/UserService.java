@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger("UserAuthenticationLog");
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final MailService mailService;
@@ -79,6 +79,7 @@ public class UserService implements UserDetailsService {
             userRepository.deleteUserByLogin(deletionUserDto.getUsername());
 
         } catch (BadCredentialsException e){
+
             return new ResponseEntity<>(new AppError(HttpStatus.NOT_FOUND.value(),
                     "User " + deletionUserDto.getUsername() + " doesn't exists"), HttpStatus.NOT_FOUND);
         }

@@ -1,1 +1,1 @@
-2024-01-12 10:10:32 INFO  UserAuthenticationLog:45 - User 'pablo' created a join token eyJhbGciOiJIUzM4NCJ9.eyJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sInN1YiI6InBhYmxvIiwiaWF0IjoxNzA1MDMyNjMyLCJleHAiOjE3MDUwMzMyMzJ9.oaC5HnDxRei6lK61RZP_ftBBYP5MTCMPdZA0lAeTm0ebSFMEcbOkIwmQpT6vqEO9
+2024-01-17 12:01:42 ERROR UserAuthenticationLog:34 - User pabwwlo with current data doesn't exists.

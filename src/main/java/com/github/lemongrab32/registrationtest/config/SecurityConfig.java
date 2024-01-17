@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig{
 
     private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
