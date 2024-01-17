@@ -80,8 +80,10 @@ public class UserService implements UserDetailsService {
 
         } catch (BadCredentialsException e){
 
-            return new ResponseEntity<>(new AppError(HttpStatus.NOT_FOUND.value(),
-                    "User " + deletionUserDto.getUsername() + " doesn't exists"), HttpStatus.NOT_FOUND);
+            AppError notFound = new AppError(HttpStatus.NOT_FOUND.value(),
+                    "User " + deletionUserDto.getUsername() + " doesn't exists");
+            logger.error(notFound.getMessage());
+            return new ResponseEntity<>(notFound, HttpStatus.NOT_FOUND);
         }
         logger.info("User {} deleted.", deletionUserDto.getUsername());
         return ResponseEntity.ok(HttpStatus.ACCEPTED);

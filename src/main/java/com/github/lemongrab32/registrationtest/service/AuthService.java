@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private Logger logger = LoggerFactory.getLogger("UserAuthenticationLog");
+    private final Logger logger = LoggerFactory.getLogger("UserAuthenticationLog");
     private final UserService userService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
@@ -32,8 +32,9 @@ public class AuthService {
                     authRequest.getPassword()));
         } catch (BadCredentialsException e) {
             logger.error("User {} with current data doesn't exists.", authRequest.getUsername());
-            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(),
-                    "Wrong login or password"), HttpStatus.UNAUTHORIZED);
+            AppError unauthorized = new AppError(HttpStatus.UNAUTHORIZED.value(),
+                    "Wrong login or password");
+            return new ResponseEntity<>(unauthorized, HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
         logger.info("User {} signed up.", userDetails.getUsername());
