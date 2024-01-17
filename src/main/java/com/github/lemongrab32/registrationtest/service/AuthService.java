@@ -5,6 +5,8 @@ import com.github.lemongrab32.registrationtest.exceptions.AppError;
 import com.github.lemongrab32.registrationtest.repository.entities.User;
 import com.github.lemongrab32.registrationtest.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final Logger logger = LoggerFactory.getLogger("UserAuthenticationLog");
     private final UserService userService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
@@ -28,10 +31,13 @@ public class AuthService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                     authRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(),
-                    "Wrong login or password"), HttpStatus.UNAUTHORIZED);
+            logger.error("User {} with current data doesn't exists.", authRequest.getUsername());
+            AppError unauthorized = new AppError(HttpStatus.UNAUTHORIZED.value(),
+                    "Wrong login or password");
+            return new ResponseEntity<>(unauthorized, HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
+        logger.info("User {} signed up.", userDetails.getUsername());
         String token = jwtUtils.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
@@ -46,6 +52,7 @@ public class AuthService {
         registrationUserDto.setPassword(new BCryptPasswordEncoder()
                 .encode(registrationUserDto.getPassword()));
         User user = userService.save(registrationUserDto);
+        logger.info("User {} created account.", user.getLogin());
         return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
     }
 
@@ -53,6 +60,7 @@ public class AuthService {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         if (!pass.getPassword().equals(pass.getConfirmPassword())) {
+            logger.error("User {} tryed to recover password", username);
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Password mismatch"), HttpStatus.BAD_REQUEST);
         }
 
@@ -64,7 +72,7 @@ public class AuthService {
 
         user.setPassword(encoder.encode(pass.getPassword()));
         userService.save(user);
-
+        logger.info("User {} recovered his password.", user.getLogin());
         return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
     }
 }

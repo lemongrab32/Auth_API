@@ -8,6 +8,8 @@ import com.github.lemongrab32.registrationtest.repository.entities.Role;
 import com.github.lemongrab32.registrationtest.repository.entities.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-
+    private final Logger logger = LoggerFactory.getLogger("UserAuthenticationLog");
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final MailService mailService;
@@ -62,6 +64,7 @@ public class UserService implements UserDetailsService {
                 "Confirmation of given email address",
                 "Follow this link to confirm your email address:\n" +
                         "\thttp://localhost:8080/api/confirmed/" + user.getLogin());
+        logger.info("Confirmation of given email address sent to {}", user.getMail());
         return userRepository.save(user);
     }
     public void save(User user) {
@@ -76,10 +79,13 @@ public class UserService implements UserDetailsService {
             userRepository.deleteUserByLogin(deletionUserDto.getUsername());
 
         } catch (BadCredentialsException e){
-            return new ResponseEntity<>(new AppError(HttpStatus.NOT_FOUND.value(),
-                    "User " + deletionUserDto.getUsername() + " doesn't exists"), HttpStatus.NOT_FOUND);
-        }
 
+            AppError notFound = new AppError(HttpStatus.NOT_FOUND.value(),
+                    "User " + deletionUserDto.getUsername() + " doesn't exists");
+            logger.error(notFound.getMessage());
+            return new ResponseEntity<>(notFound, HttpStatus.NOT_FOUND);
+        }
+        logger.info("User {} deleted.", deletionUserDto.getUsername());
         return ResponseEntity.ok(HttpStatus.ACCEPTED);
     }
 
@@ -88,12 +94,14 @@ public class UserService implements UserDetailsService {
         User user = findByLogin(username).get();
         user.addRole(role);
         userRepository.save(user);
+        logger.info("User '{}' now has role '{}'", user.getLogin(), roleName);
     }
     public void deleteRole(String roleName, String username){
         Role role = roleService.findByName(roleName).get();
         User user = findByLogin(username).get();
         user.deleteRole(role);
         userRepository.save(user);
+        logger.info("User {} no longer has role '{}'.", user.getLogin(), roleName);
     }
 
     @Transactional

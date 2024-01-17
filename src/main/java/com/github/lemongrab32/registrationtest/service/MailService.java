@@ -1,14 +1,19 @@
 package com.github.lemongrab32.registrationtest.service;
 
+
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+
 @Service
 public class MailService {
+
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -17,6 +22,7 @@ public class MailService {
     private JavaMailSender mailSender;
 
     public String sendMail(String to, String subject, String body) {
+
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
 
@@ -28,7 +34,6 @@ public class MailService {
             mimeMessageHelper.setText(body);
 
             mailSender.send(mimeMessage);
-
             return "mail send";
         } catch (Exception e) {
             throw new RuntimeException(e);
