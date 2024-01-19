@@ -2,9 +2,9 @@ package com.github.lemongrab32.registrationtest.controllers;
 
 import com.github.lemongrab32.registrationtest.dtos.JwtRequest;
 import com.github.lemongrab32.registrationtest.dtos.PasswordRecoveryDto;
+import com.github.lemongrab32.registrationtest.dtos.RefreshTokenRequest;
 import com.github.lemongrab32.registrationtest.dtos.RegistrationUserDto;
 import com.github.lemongrab32.registrationtest.service.AuthService;
-import com.github.lemongrab32.registrationtest.service.RoleService;
 import com.github.lemongrab32.registrationtest.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,11 @@ public class AuthController {
     @PostMapping("/auth")
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
         return authService.createAuthToken(authRequest);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequest refreshRequest) {
+        return authService.refreshToken(refreshRequest);
     }
 
     @PostMapping("/registration")

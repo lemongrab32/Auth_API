@@ -37,6 +37,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findByLogin(login);
     }
 
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findUserByMail(email);
+    }
+
     // Searching user data
     @Override
     @Transactional
