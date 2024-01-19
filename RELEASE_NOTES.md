@@ -1,8 +1,13 @@
 # Release Notes
 
-## 0.3.1-SNAPSHOT
+## 0.5.0-SNAPSHOT
 
-* Added logging and AOP dependencies
+* RT-7: added refresh token generation
+* RT-7: added endpoint for access token refreshing
+
+## 0.4.0-SNAPSHOT
+
+* RT-6: logging added to the project
 
 ## 0.3.0-SNAPSHOT
 

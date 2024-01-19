@@ -3,7 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .mvn
-*.log
+**/src/main/resources/logback.log
 
 ### STS ###
 .apt_generated
