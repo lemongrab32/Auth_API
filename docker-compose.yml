@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+  auth-api:
+    restart: always
+    container_name: api
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
