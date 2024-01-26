@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.7.0-SNAPSHOT
+
+* RT-9: added user IP tracing
+
 ## 0.6.0-SNAPSHOT
 * RT-9: added user IP tracing
 
