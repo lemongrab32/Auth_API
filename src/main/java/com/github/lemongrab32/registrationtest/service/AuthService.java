@@ -55,7 +55,7 @@ public class AuthService {
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtils.generateToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), userDetails);
-        logger.info("User {} signed up.", userDetails.getUsername());
+        logger.info("User {} signed in.", userDetails.getUsername());
         return ResponseEntity.ok(new JwtResponse(token, refreshToken));
     }
 
@@ -89,7 +89,7 @@ public class AuthService {
         registrationUserDto.setPassword(new BCryptPasswordEncoder()
                 .encode(registrationUserDto.getPassword()));
         User user = userService.save(registrationUserDto);
-        logger.info("User {} created account.", user.getLogin());
+        logger.info("User {} signed up.", user.getLogin());
         return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail(), user.getIp()));
     }
 
