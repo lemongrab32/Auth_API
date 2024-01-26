@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.6.0-SNAPSHOT
+* RT-9: added user IP tracing
+
 ## 0.5.0-SNAPSHOT
 
 * RT-7: added refresh token generation
