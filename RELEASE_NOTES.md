@@ -1,5 +1,10 @@
 # Release Notes
 
+## 0.6.0-SNAPSHOT
+
+* RT-10: docker container with the service configured
+* Added some small changes to endpoints names and logging messages
+
 ## 0.5.0-SNAPSHOT
 
 * RT-7: added refresh token generation
