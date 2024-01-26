@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
 
-    @PostMapping("/auth")
+    @PostMapping
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest, HttpServletRequest request) {
         return authService.createAuthToken(authRequest, request);
     }
