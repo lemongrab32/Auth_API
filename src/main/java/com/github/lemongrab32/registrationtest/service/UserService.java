@@ -55,6 +55,7 @@ public class UserService implements UserDetailsService {
                 user.getRoles().stream().map(role ->
                                 new SimpleGrantedAuthority(role.getName()))
                         .collect(Collectors.toList())
+
         );
     }
 
@@ -63,6 +64,7 @@ public class UserService implements UserDetailsService {
         user.setLogin(registrationUserDto.getUsername());
         user.setMail(registrationUserDto.getEmail());
         user.setPassword(registrationUserDto.getPassword());
+        user.setIp(registrationUserDto.getIp());
         user.addRole(roleService.findByName("ROLE_UNCONFIRMED").get());
         mailService.sendMail(user.getMail(),
                 "Confirmation of given email address",

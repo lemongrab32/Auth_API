@@ -9,6 +9,7 @@ import java.util.List;
 @Entity
 @Table(name= "roles")
 @Data
+@SequenceGenerator(name = "role_seq", sequenceName = "role_id_seq", allocationSize = 1)
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "roles_seq")

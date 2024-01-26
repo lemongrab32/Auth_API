@@ -6,21 +6,22 @@ import com.github.lemongrab32.registrationtest.dtos.RefreshTokenRequest;
 import com.github.lemongrab32.registrationtest.dtos.RegistrationUserDto;
 import com.github.lemongrab32.registrationtest.service.AuthService;
 import com.github.lemongrab32.registrationtest.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
-        return authService.createAuthToken(authRequest);
+    @PostMapping("/auth")
+    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest, HttpServletRequest request) {
+        return authService.createAuthToken(authRequest, request);
     }
 
     @PostMapping("/refresh")
@@ -29,8 +30,8 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
-        return authService.createNewUser(registrationUserDto);
+    public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto, HttpServletRequest request) {
+        return authService.createNewUser(registrationUserDto, request);
     }
 
     @PostMapping("/password_recovery/{username}")
