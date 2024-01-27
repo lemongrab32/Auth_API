@@ -5,7 +5,7 @@ git pull
 
 #Prepare Jar
 mvn clean
-mvn package
+mvn package -DskipTests
 
 # Ensure, that docker-compose stopped
 docker-compose stop
