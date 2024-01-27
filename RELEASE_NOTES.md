@@ -13,7 +13,8 @@ Implemented all the logic, planned up to MVP:
 * RT-9: added user IP tracing
 
 ## 0.6.0-SNAPSHOT
-* RT-9: added user IP tracing
+* RT-10: docker container with the service configured
+* Added some small changes to endpoints names and logging messages
 
 ## 0.5.0-SNAPSHOT
 
