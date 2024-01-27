@@ -1,5 +1,13 @@
 # Release Notes
 
+## 1.0.0
+
+Implemented all the logic, planned up to MVP:
+* User can sign up and sign in
+* User can do authentication and authorization by access token that he get after signing in
+* User can update the access token by given refresh token
+* Admins has abilities to add role to user, delete it and delete the user account altogether
+
 ## 0.7.0-SNAPSHOT
 
 * RT-9: added user IP tracing

@@ -65,7 +65,7 @@ public class UserService implements UserDetailsService {
         user.setMail(registrationUserDto.getEmail());
         user.setPassword(registrationUserDto.getPassword());
         user.setIp(registrationUserDto.getIp());
-        user.addRole(roleService.findByName("ROLE_UNCONFIRMED").get());
+        user.addRole(roleService.findByName("ROLE_UNCONFIRMED").orElseThrow());
         mailService.sendMail(user.getMail(),
                 "Confirmation of given email address",
                 "Follow this link to confirm your email address:\n" +
@@ -80,7 +80,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public ResponseEntity<?> deleteUser(@RequestBody DeletionUserDto deletionUserDto){
         try {
-            User user = findByLogin(deletionUserDto.getUsername()).get();
+            User user = findByLogin(deletionUserDto.getUsername()).orElseThrow();
             user.deleteAllRoles();
             userRepository.deleteUserByLogin(deletionUserDto.getUsername());
 
@@ -96,15 +96,15 @@ public class UserService implements UserDetailsService {
     }
 
     public void addRole(String roleName, String username) {
-        Role role = roleService.findByName(roleName).get();
-        User user = findByLogin(username).get();
+        Role role = roleService.findByName(roleName).orElseThrow();
+        User user = findByLogin(username).orElseThrow();
         user.addRole(role);
         userRepository.save(user);
         logger.info("User '{}' now has role '{}'", user.getLogin(), roleName);
     }
     public void deleteRole(String roleName, String username){
-        Role role = roleService.findByName(roleName).get();
-        User user = findByLogin(username).get();
+        Role role = roleService.findByName(roleName).orElseThrow();
+        User user = findByLogin(username).orElseThrow();
         user.deleteRole(role);
         userRepository.save(user);
         logger.info("User {} no longer has role '{}'.", user.getLogin(), roleName);
@@ -113,8 +113,8 @@ public class UserService implements UserDetailsService {
     @Transactional
     public ResponseEntity<?> addRole(@RequestBody RoleSettingDto roleSettingDto){
         try {
-            User user = findByLogin(roleSettingDto.getLogin()).get();
-            if (!user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).get())){
+            User user = findByLogin(roleSettingDto.getLogin()).orElseThrow();
+            if (!user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).orElseThrow())){
                 addRole(roleSettingDto.getRoleName(), user.getLogin());
             }
         } catch (BadCredentialsException e){
@@ -126,8 +126,8 @@ public class UserService implements UserDetailsService {
     @Transactional
     public ResponseEntity<?> deleteRole(@RequestBody RoleSettingDto roleSettingDto){
         try{
-            User user = findByLogin(roleSettingDto.getLogin()).get();
-            if (user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).get())){
+            User user = findByLogin(roleSettingDto.getLogin()).orElseThrow();
+            if (user.getRoles().contains(roleService.findByName(roleSettingDto.getRoleName()).orElseThrow())){
                 deleteRole(roleSettingDto.getRoleName(), user.getLogin());
             }
         } catch (BadCredentialsException e){
