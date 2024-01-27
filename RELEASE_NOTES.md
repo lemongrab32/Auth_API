@@ -1,9 +1,11 @@
 # Release Notes
 
-## 0.6.0-SNAPSHOT
+## 0.7.0-SNAPSHOT
 
-* RT-10: docker container with the service configured
-* Added some small changes to endpoints names and logging messages
+* RT-9: added user IP tracing
+
+## 0.6.0-SNAPSHOT
+* RT-9: added user IP tracing
 
 ## 0.5.0-SNAPSHOT
 

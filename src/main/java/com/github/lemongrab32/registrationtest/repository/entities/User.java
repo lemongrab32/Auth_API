@@ -28,6 +28,9 @@ public class User {
     @Column(name = "mail")
     private String mail;
 
+    @Column(name = "ip")
+    private String ip;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "roles_x_users",

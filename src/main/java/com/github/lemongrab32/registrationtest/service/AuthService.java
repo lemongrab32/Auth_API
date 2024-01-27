@@ -4,6 +4,7 @@ import com.github.lemongrab32.registrationtest.dtos.*;
 import com.github.lemongrab32.registrationtest.exceptions.AppError;
 import com.github.lemongrab32.registrationtest.repository.entities.User;
 import com.github.lemongrab32.registrationtest.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,9 @@ public class AuthService {
     private final UserService userService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final MailService mailService;
 
-    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
+    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest, HttpServletRequest request) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                     authRequest.getPassword()));
@@ -38,10 +40,22 @@ public class AuthService {
                     "Wrong login or password");
             return new ResponseEntity<>(unauthorized, HttpStatus.UNAUTHORIZED);
         }
+
+        // Comparing registration and signing up IP.
+        if (request.getRemoteAddr().equals(userService.findByLogin(authRequest.getUsername()).orElseThrow().getIp())){
+            logger.info("Ip {} is right.", request.getRemoteAddr());
+        } else {
+            logger.info("Somebody tried to log in account '{}' with IP {}", authRequest.getUsername(),  request.getRemoteAddr() );
+            mailService.sendMail(userService.findByLogin(authRequest.getUsername()).orElseThrow().getMail(), "Unknown login attempt",
+                    userService.findByLogin(authRequest.getUsername()).orElseThrow().getLogin() + ", looks like someone has logged into your account from this IP:\n" +
+                            request.getRemoteAddr() + "\n If it was not you, we recommend to change your password by clicking on link:\n"
+                                    + "http://localhost:8080/password_recovery/" + userService.findByLogin(authRequest.getUsername()).orElseThrow().getLogin());
+        } //
+
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
-        logger.info("User {} signed in.", userDetails.getUsername());
         String token = jwtUtils.generateToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), userDetails);
+        logger.info("User {} signed in.", userDetails.getUsername());
         return ResponseEntity.ok(new JwtResponse(token, refreshToken));
     }
 
@@ -58,7 +72,7 @@ public class AuthService {
         return null;
     }
 
-    public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
+    public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto, HttpServletRequest request) {
         if (!registrationUserDto.getPassword().equals(registrationUserDto.getConfirmPassword())) {
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),
                     "Password mismatch"), HttpStatus.BAD_REQUEST);
@@ -71,11 +85,12 @@ public class AuthService {
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),
                     "An account with given email is already exists"), HttpStatus.BAD_REQUEST);
         }
+        registrationUserDto.setIp(request.getRemoteAddr());
         registrationUserDto.setPassword(new BCryptPasswordEncoder()
                 .encode(registrationUserDto.getPassword()));
         User user = userService.save(registrationUserDto);
         logger.info("User {} signed up.", user.getLogin());
-        return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
+        return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail(), user.getIp()));
     }
 
     public ResponseEntity<?> recoveryPassword(@RequestBody PasswordRecoveryDto pass, String username) {
@@ -86,7 +101,7 @@ public class AuthService {
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Password mismatch"), HttpStatus.BAD_REQUEST);
         }
 
-        User user = userService.findByLogin(username).get();
+        User user = userService.findByLogin(username).orElseThrow();
         if (encoder.matches(pass.getPassword(), user.getPassword())) {
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),
                     "New password must be different from the old one"), HttpStatus.BAD_REQUEST);
@@ -95,6 +110,6 @@ public class AuthService {
         user.setPassword(encoder.encode(pass.getPassword()));
         userService.save(user);
         logger.info("User {} recovered his password.", user.getLogin());
-        return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail()));
+        return ResponseEntity.ok(new UserDto(user.getId(), user.getLogin(), user.getMail(), user.getIp()));
     }
 }
