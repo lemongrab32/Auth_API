@@ -39,17 +39,17 @@ public class AuthService {
             AppError unauthorized = new AppError(HttpStatus.UNAUTHORIZED.value(),
                     "Wrong login or password");
             return new ResponseEntity<>(unauthorized, HttpStatus.UNAUTHORIZED);
-        };
+        }
 
         // Comparing registration and signing up IP.
-        if (request.getRemoteAddr()==(userService.findByLogin(authRequest.getUsername()).get().getIp())){
+        if (request.getRemoteAddr().equals(userService.findByLogin(authRequest.getUsername()).orElseThrow().getIp())){
             logger.info("Ip {} is right.", request.getRemoteAddr());
         } else {
             logger.info("Somebody tried to log in account '{}' with IP {}", authRequest.getUsername(),  request.getRemoteAddr() );
-            mailService.sendMail(userService.findByLogin(authRequest.getUsername()).get().getMail(), "Unknown login attempt",
-                    userService.findByLogin(authRequest.getUsername()).get().getLogin() + ", looks like someone has logged into your account from this IP:\n" +
+            mailService.sendMail(userService.findByLogin(authRequest.getUsername()).orElseThrow().getMail(), "Unknown login attempt",
+                    userService.findByLogin(authRequest.getUsername()).orElseThrow().getLogin() + ", looks like someone has logged into your account from this IP:\n" +
                             request.getRemoteAddr() + "\n If it was not you, we recommend to change your password by clicking on link:\n"
-                                    + "http://localhost:8080/password_recovery/" + userService.findByLogin(authRequest.getUsername()).get().getLogin());
+                                    + "http://localhost:8080/password_recovery/" + userService.findByLogin(authRequest.getUsername()).orElseThrow().getLogin());
         } //
 
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
@@ -101,7 +101,7 @@ public class AuthService {
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Password mismatch"), HttpStatus.BAD_REQUEST);
         }
 
-        User user = userService.findByLogin(username).get();
+        User user = userService.findByLogin(username).orElseThrow();
         if (encoder.matches(pass.getPassword(), user.getPassword())) {
             return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),
                     "New password must be different from the old one"), HttpStatus.BAD_REQUEST);
